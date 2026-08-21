@@ -90,3 +90,12 @@ Tämän jälkeen vaihdetaan `-d` valitsimeen jonka avulla saamme konekoodin asse
 ## Yhteenveto
 
 - Luotiin yksinkertainen C++ ohjelma, joka käännettiin g++:lla binääritiedostoksi ja sitten analysoitiin GNU Binutils työkaluilla.
+
+## Lähteet
+- https://code.visualstudio.com/docs/languages/cpp
+- https://www.aussieai.com/book/ch37-examining-object-files
+- https://www.geeksforgeeks.org/linux-unix/objdump-command-in-linux-with-examples/
+- https://medium.com/leclevietnam/build-c-application-with-gnu-gcc-by-command-line-gnu-make-and-cmake-a9d28a6f9764
+- https://cs107e.github.io/guides/binutils/
+- https://man7.org/linux/man-pages/man1/objdump.1.html
+- https://www.baeldung.com/linux/find-string-binary-file
