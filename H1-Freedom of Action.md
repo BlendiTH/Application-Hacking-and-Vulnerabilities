@@ -12,7 +12,7 @@ Erilaisia keskeisiä rajapintoja ovat hyvänä esimerkkinä pilvipalvelut, kuten
 ### Verkko- ja rajapintakaavio
 Alla pystyt visuaalisesti ymmärtämään kotiverkon ja opiskelulabran rakenteen, sekä scopeen kuuluvat ja siihen kuulumattomat osat:
 
-<img width="3117" height="2262" alt="H1 kaavio" src="https://github.com/user-attachments/assets/8a386929-6f3d-49e8-9e1e-93f44604b37d" />
+<img alt="H1 kaavio" src="https://github.com/user-attachments/assets/8a386929-6f3d-49e8-9e1e-93f44604b37d" style="max-width:100%; height:auto;" />
 
 ### Evidence Addendum
 Yllä kuvatusta scopesta, seuraavat asiat toimisivat todisteina: Kuvakaapaus reitittimen asetussivulta (Eri palomuurisäännöt, Wi-Fi salaus, jne.), VM-lista jossa näkyy eri koneet ja niiden käyttötarkoitukset, eri repo-linkit, laiteinventaario, sekä kuvakaappaus MFA asetuksista.
