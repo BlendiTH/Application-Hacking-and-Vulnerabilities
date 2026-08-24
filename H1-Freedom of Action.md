@@ -17,7 +17,7 @@ Alla pystyt visuaalisesti ymmärtämään kotiverkon ja opiskelulabran rakenteen
 ### Evidence Addendum
 Yllä kuvatusta scopesta, seuraavat asiat toimisivat todisteina: Kuvakaapaus reitittimen asetussivulta (Eri palomuurisäännöt, Wi-Fi salaus, jne.), VM-lista jossa näkyy eri koneet ja niiden käyttötarkoitukset, eri repo-linkit, laiteinventaario, sekä kuvakaappaus MFA asetuksista.
 
-## Interested parties taulukko
+## b) Interested parties taulukko
 
 | Interested Party         | Need or Requirement                                                                          | ISO 27001 Reference    | Evidence                                                    |
 | ------------------------ | -------------------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------- |
