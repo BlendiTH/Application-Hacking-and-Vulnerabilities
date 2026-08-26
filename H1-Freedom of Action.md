@@ -26,3 +26,10 @@ Yllä kuvatusta scopesta, seuraavat asiat toimisivat todisteina: Kuvakaapaus rei
 | ISP                      | Liittymän käyttäminen sopimuksen ja käyttöehtojen mukaisesti                                 | Compliance / Context   | Voimassa oleva liittymäsopimus, sekä rekisteröidyt laitteet |
 | Pilvipalveluntarjoajat   | Tilien käyttö turvallisesti, käyttöehtoja noudattaen                                         | Support                | MFA päällä, tilin turva-asetusten pitäminen päivitettyinä   |
 | Oppilaitos               | Verkon käyttäminen vain kursseissa, eikä mihinkään ulkopuoliseen tai haitalliseen toimintaan | Leadership / Operation | Eristetty VM-labraympäristö ja tehtävien dokumentaatio      |
+
+## Lähteet
+- **ISO 27001**
+  - https://advisera.com/27001academy/what-is-iso-27001/
+  - https://www.tcsa.in/frameworks/iso-27001/clauses
+- **Kurssin sivusto**
+  - https://terokarvinen.com/application-hacking/#homework-tasks
