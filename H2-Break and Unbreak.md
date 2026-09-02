@@ -85,7 +85,7 @@ Nyt kun pääsimme murtautumaan sisään a) kohdassa, voimme jatkaa korjaamalla 
 
 2. Jatketaan etsimällä kohtaa, joka rakentaa SQL kyselyn, joka löytyy riviltä 22:
 
-<img width="558" height="115" alt="Screenshot 2026-09-02 030325" src="https://github.com/user-attachments/assets/4d458eba-e0c4-417d-a488-c907e20ad33b" />
+<img width="553" height="118" alt="Pasted image 20260902030034" src="https://github.com/user-attachments/assets/1f85c1ce-90d8-46b9-ae45-5925b220f73c" />
 
 Haavoittuvuus syntyy tässä siten, että käyttäjän syöte (eli tuo pin) liitetään suoraan SQL kyselyyn kun se pistetään lomakkeeseen. Näin myös jos käyttäjän syötteessä on SQL syntaksia se voi muuttaa koko kyselyn rakennetta.
 
