@@ -112,7 +112,7 @@ upx -d 4packd
 ```
 
 2. Seuraavaksi avataan binääri Ghidrassa
-> Tässä kohtaa olin jo siirtänyt uuden 4packd tiedoston H4 kansioon: `mv 4packd /home/blendi/H4`
+> Tässä kohtaa olin jo kopioinut uuden 4packd tiedoston H4 kansioon: `cp 4packd /home/blendi/H4`
 
 `File -> Import File -> H4 -> 4packd`
 
@@ -131,11 +131,105 @@ Tälläinen näkymä pitäisi tulla kun kaikki valinnat on tehty:
 
 <img width="600" height="460" alt="VirtualBoxVM_b307SNIiIU" src="https://github.com/user-attachments/assets/113ffbbe-5e38-4670-b9dc-8d7621ec4798" />
 
-4. Voimme aloittaa analysointi etsimällä `main`:
+4. Voimme aloittaa analysoinnin etsimällä `main` funktion:
 
+Analyysin jälkeen avautuu "CodeBrowser" ikkuna, josta sitten siirrytään "Symbol Tree" kohtaan jotta voimme tutkia `main` funktiota, sitten kaksoisklikataan sitä:
+`Symbol Tree -> Functions -> main`
 
+<img width="166" height="320" alt="VirtualBoxVM_MjRrmE0TJZ" src="https://github.com/user-attachments/assets/6eb9266d-07de-4ec0-b023-3d8841149d31" />
+
+5. Kun `main` funktio on valittu, tarkistetaan Listing ja Decompiler:
+
+Keskellä pitäisi näkyä **Listing** ja **Decompiler** oikealla puolella. Decompilerissa näkyy aluksi Ghidran antamia outoja nimiä, kuten `local_28`. Ennen kuin aloitamme yhtään mitään, meidän täytyy tutkia ja selvittää mitä funktiot ja muuttujat tekevät, jotta voimme jatkaa nimeämällä ne selkeämmiksi.
+
+<img width="600" height="300" alt="VirtualBoxVM_wBuskIFwBi" src="https://github.com/user-attachments/assets/1f89166a-1f05-4c6d-90ed-44bfcf33b3e9" />
+
+6. Jatketaan selvittämällä funktioiden toiminta
+> **[strcmp:](https://cplusplus.com/reference/cstring/strcmp/)** Compares the C string str1 to the C string str2
+
+Decompilerista näkyy, että `main` kysyy käyttäjältä salasanaa **(1)**, ja sitten tallentaa sen `local_28` muuttujaan **(2)**. Tämän jälkeen salasanaa verrataan `strcmp` funktiolla merkkijonoon `"piilos-AnAnAs"` **(3)**, jos vertailu palauttaa meille arvon `0`, ohjelma tulostaa _"Yes! That's the password. FLAG{Tero...}"_ ja saamme lipun, muuten saamme virheilmoituksen _"Sorry, no bonus."_ **(4)**.
+
+<img width="404" height="334" alt="VirtualBoxVM_lyueOKUB0L" src="https://github.com/user-attachments/assets/8697fc21-4f29-46b1-ad5a-99e31c0cffdc" />
+
+7. Nyt kun olemme selvittäneet mitä nämä muuttujat tekevät, voidaan jatkaa niiden uudelleen nimeämisellä. 
+
+`Paina muuttujan päältä hiiren oikealla klikkauksella -> Rename Variable`
+
+<img width="315" height="43" alt="VirtualBoxVM_qwCS2aZxVd" src="https://github.com/user-attachments/assets/9fc60b56-56c0-4fe2-a8b7-75d7d8d6b30b" />
+<br>
+<img width="442" height="147" alt="VirtualBoxVM_7QxDFOFrwF" src="https://github.com/user-attachments/assets/853d2977-374c-468e-a8b7-45072fc95b46" />
+
+Näin saimme decompiler koodista paljon helpommin ymmärrettävän, sekä saimme tietää myös salasanan:
+> **Salasana**: piilos-AnAnAs
+
+<img width="397" height="333" alt="VirtualBoxVM_A0KN50rjGR" src="https://github.com/user-attachments/assets/52d134fa-4084-4eaf-aa61-42dc269fa27b" />
+
+8. Kokeillaan ratkaista tehtävä uudella tiedollamme, aloitetaan siirtymällä terminaalissa oikeaan hakemistoon ja ajetaan ohjelma:
+
+```bash
+cd Desktop/challenges/packd
+./4packd
+```
+
+<img width="574" height="152" alt="VirtualBoxVM_S8pHaTahel" src="https://github.com/user-attachments/assets/f7aa773e-621f-4456-a768-2373fff8b44a" />
+
+> Kuten näkyykin, saimme sen tehtyä oikein!
 
 ## c) If backwards (`passtr`)
+
+1. Aloitetaan ensin kopioimalla `passtr` tiedosto, uudelleen nimeämällä sen ja viemällä se H4 kansioon jotta voimme analysoida se Ghidrassa:
+> Tarkistin tässä myös oliko `passtr` pakattu UPX:n avulla: `file passtr` & `strings passtr | grep -i "UPX"` (Keltaisella)
+
+```bash
+cp passtr 4passtr
+cp 4passtr /home/blendi/H4/
+```
+
+<img width="458" height="286" alt="VirtualBoxVM_ETXQt89zlP" src="https://github.com/user-attachments/assets/57b09faa-ef70-44f4-ad24-c28dc13da70b" />
+
+2. Jatketaan sitten tuomalla `passtr` Ghidraan samalla tavalla kuin kohdassa b:
+
+`File -> Import File -> H4 -> passtr`
+
+<img width="197" height="109" alt="VirtualBoxVM_iSezfCsE1p" src="https://github.com/user-attachments/assets/831d1f88-b9e1-4d39-b6c9-57e4e59961b8" />
+
+3. Avataan tämän jälkeen taas `main` funktio ja etsitään **Decompiler** näkymästä kohta, jossa ohjelma vertailee käyttäjän syötettä (`strcmp`) oikeaan salasanaan. Sitten siirrytään Listing näkymään, jossa nähdään kuinka vertailun tulos `TEST`, `JNZ` ratkaisee tulostetaanko lippu vai "Sorry, no bonus".
+> `JNZ` = Jump If Not Zero  
+> Selitykset tarkemmin: [JNZ](https://stackoverflow.com/questions/14841169/jnz-cmp-assembly-instructions), [MOV](https://coddy.tech/learn/assembly/fundamentals/what_is_mov)
+
+<img width="884" height="362" alt="VirtualBoxVM_WEKjFSqPy2" src="https://github.com/user-attachments/assets/7ec5134b-f6e1-475a-a083-163c3dcf9f15" />
+
+4. Kuten huomataankin kuvassa näkyvä `JNZ` hyppää "Sorry, no bonus" haaraan silloin kun `strcmp` vertailun tuloksena ei ole `0`. Tämä sai minut miettimään onkohan tällä olemassa vastakohtaa, ja löysin Googlen kautta Conditional Jumps Instructions materiaalin, josa `JZ` toimisi täydellisesti, päinvastaisena ehtona. Tämän myötä tajusin vaihtamalla `JNZ` -> `JZ` saamme aina oikean salasanan hylättyä ja kaikki muut väärät salasanat hyväksyttyä!
+> `JZ` = Jump If Zero
+
+5. Muutetaan `JNZ` -> `JZ` klikkaamalla `JNZ` käskyä hiiren oikealla klikkauksella ja valitaan `Patch Instruction`, sitten kirjoitetaan tilalle `JZ`:
+
+<img width="309" height="254" alt="VirtualBoxVM_9hFCNvc7Uh" src="https://github.com/user-attachments/assets/8da62822-f05d-4ebe-85da-b6b7fb32f341" />
+<br>
+<img width="235" height="60" alt="VirtualBoxVM_zuFucfhDDk" src="https://github.com/user-attachments/assets/316f6798-364d-45f4-92f0-7da107531fc5" />
+
+Painetaan Enter ja Ghidra muuttaa tuon assembly käskyn `JZ`:ksi.
+
+6. Jatketaan viemällä muokattu binääri kun muutos on tehty:
+
+`File -> Export Program`
+
+<img width="253" height="266" alt="VirtualBoxVM_zDjk0aOaW1" src="https://github.com/user-attachments/assets/27fef66d-a709-460f-bea8-dcfbbfee463d" />
+
+Sitten tallennetaan eri nimellä jotta tiedämme mitä kokeilla, itse annoin nimeksi `4passtr_k`
+
+<img width="350" height="234" alt="VirtualBoxVM_KZcLz59rpM" src="https://github.com/user-attachments/assets/e7c5c0b7-87ba-4d4b-be3b-e3792b75d6b1" />
+
+> **HUOM.** jos tässä kohtaa ei valitse "Original File" ohjelmaa ei voi ajaa!
+
+7. Nyt tärkeimpään kohtaan, testataan muutos! Aloitetaan ajamalla ensin väärällä salasanalla ja sitten oikealla:
+
+<img width="562" height="240" alt="VirtualBoxVM_89PAt1rm4l" src="https://github.com/user-attachments/assets/4abda69d-6f83-4439-84fa-022c74cabc88" />
+
+> Se toimii, wohoo! :D
+
+
+
 
 
 
