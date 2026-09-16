@@ -226,23 +226,151 @@ Sitten tallennetaan eri nimellä jotta tiedämme mitä kokeilla, itse annoin nim
 
 <img width="562" height="240" alt="VirtualBoxVM_89PAt1rm4l" src="https://github.com/user-attachments/assets/4abda69d-6f83-4439-84fa-022c74cabc88" />
 
-> Se toimii, wohoo! :D
+> Se toimii, wohoo! Oikea salasana antaa "Sorry, no bonus" ja väärä salasana antoi lipun :D
 
+## d) Nora CrackMe: Käännä lähdekoodit binääreiksi
 
+1. Aloitetaan lataamalla repositorio VirtualBoxiin ja menemällä `/crackmes` hakemistoon:
 
+```bash
+git clone https://github.com/NoraCodes/crackmes.git
+cd crackmes
+```
 
+<img width="576" height="214" alt="VirtualBoxVM_vZ8tQnJ4qm" src="https://github.com/user-attachments/assets/48c62610-2ec7-4bc3-9a9e-c63890c08699" />
 
+2. Jatketaan kääntämällä crackmet, README:n ohjeiden mukaan binäärit voidaan helposti rakentaa `make`-komennolla. ([README.md](https://github.com/NoraCodes/crackmes/blob/master/README.md)):
 
-## d) Nora CrackMe
+Okei, sieltä tulikin jo virhe kun virtuaalikoneelta ei löytynyt `libcrypt` kirjastoa, ladataan se:
 
+```bash
+sudo apt update
+sudo apt install libcrypt-dev
+```
 
+<img width="600" height="110" alt="VirtualBoxVM_dv8DK8lhqI" src="https://github.com/user-attachments/assets/f4eecfa1-2fcc-44eb-a92e-bf6a5f9ddcad" />
+<br>
+<img width="600" height="252" alt="VirtualBoxVM_ZoPMFvI8Iq" src="https://github.com/user-attachments/assets/4b21b77f-1a9f-43fe-a2c0-a3411f562671" />
 
-## e) Nora CrackMe (01)
+Nyt voimme jatkaa `make` komennolla:
 
+<img width="583" height="389" alt="VirtualBoxVM_GDg0cItoc4" src="https://github.com/user-attachments/assets/a3bc72cb-f4da-46c9-99a9-17ac97f32633" />
 
+3. Tarkistetaan vielä varmuuden vuoksi että binäärit luotiin:
 
-## e) Nora CrackMe (01e)
+```bash
+ls -l crackme*
+```
 
+<img width="494" height="141" alt="VirtualBoxVM_7g1bhys9sO" src="https://github.com/user-attachments/assets/06c5ec27-38a1-4bde-ac7b-ab3066a84838" />
 
+## e) `crackme01` ja `crackme01e`
+
+1. Aloitetaan tutkimalla `crackme01` binääri `strings` komennolla kuten [H3 tehtävässä](https://github.com/BlendiTH/Application-Hacking-and-Vulnerabilities/blob/main/H3-No%20Strings%20Attached.md#a-strings-analyysi-passtr)
+
+```bash
+strings crackme01.64
+strings crackme01.64 | grep -i password
+```
+
+<img width="255" height="341" alt="VirtualBoxVM_2NdkzC5qI5" src="https://github.com/user-attachments/assets/a0b9331e-93e8-4a54-bfde-46457b6cb9fe" />
+<br>
+<img width="360" height="66" alt="VirtualBoxVM_u8hphlFzPk" src="https://github.com/user-attachments/assets/a1ee2b08-22d6-4242-9e11-eab4152f0a76" />
+<br>
+> Salasana löytyi! `password1`
+
+2. Tarkistetaan vielä että tuo on oikea salasana:
+
+<img width="252" height="61" alt="VirtualBoxVM_ojH5lgyi3g" src="https://github.com/user-attachments/assets/f0b5ebd1-ed00-4e61-8c38-706fa4091e76" />
+
+> Oikein oli! :)
+
+3. Kokeillaan nyt `crackme01e`:tä, aloitetaan tälläkin taas strings komennoilla:
+
+```bash
+strings crackme01e.64
+```
+
+<img width="241" height="72" alt="VirtualBoxVM_P1dpceQids" src="https://github.com/user-attachments/assets/1ae9bb25-3cb5-4007-9950-33a7d37d596f" />
+
+> Löytyi jotakin! Strings komennon avulla tuli esille: `slm!paas.k`
+
+4. Tarkistaessani salasanaa pelkkä salasana ei toiminut joten ajattelin käyttää kaksoislainausmerkkejä, mutta sekään ei tominut. Kävin sitten googlaamassa, että miksi näin oikein käy, ja löysin sitten tietoa että miten kaksois- ja yksinkertaiset lainausmerkit toimivat Bashissa:
+> Lähde: [GNU Bash manual](https://www.gnu.org/software/bash/manual/bash.html#Quoting)
+
+<img width="288" height="261" alt="VirtualBoxVM_uw68wEJwtr" src="https://github.com/user-attachments/assets/51d8d28b-2bed-4ec8-8c69-c4b3643ee659" />
+
+Sain sen sitten lopulta toimimaan! :)
 
 ## f) Nora CrackMe (02)
+
+Ennen kuin aloitin tämän CrackMe:n kanssa, kävin katsomassa Nora codesin sivustolta että pystyykö tämän tekemään samalla tavalla kuin viimeiset tehtävät vai ei, en kuitenkaan enempää mennyt alas koska kiinnosti keksiä itse tähän ratkaisu. Siellä kuitenkin luki että ei pysty:
+> This CrackMe is a little more difficult. You can try the same procedure as above, but the password you uncover won’t work! [(Nora Codes)](https://nora.codes/tutorial/an-intro-to-x86_64-reverse-engineering/)
+
+1. Aloitetaan ihan ensin avaamalla `crackme02` Ghidrassa, analysoimalla binääriä ja käydään tarkastelemassa `main` funktion decompiler näkymää.
+
+<img width="459" height="565" alt="VirtualBoxVM_TaHmBa52on" src="https://github.com/user-attachments/assets/106aa74f-d032-44d1-9fd6-6fb98f4f478f" />
+
+2. Jatkoin suoraan vaihtamaan muuttujien nimet, jotta koodia olisi helpompi ymmärtää mitä se tekee, ja miten se toimii:
+> Käyttämäni nimet: _param_1_ -> **argumentX**, _param_2_ -> **argumentY**, _pcVar1_ -> **input**, _pcVar4_ -> **current_input**, _cVar2_ -> **current_character**, _pcVar5_ -> **password**, _uVar1_ -> **return_val**
+
+<img width="437" height="485" alt="VirtualBoxVM_7Ra0SP1Wf1" src="https://github.com/user-attachments/assets/518ac8d6-973d-4958-bd45-51106448dfb6" />
+
+3. Tarkistetaan nyt ohjelman toiminta ja kuinka se toimii:
+
+Heti alusta voin huomata että ohjelma tarkistaa, että sille annetaan yksi argumentti:
+
+```c
+if (argumentX == 2)
+```
+
+Tämän jälkeen käyttäjän antama argumentti tallennetaan `input`.
+
+```c
+input =*(char **)(argumentY + 8);
+```
+
+Ohjelma sitten asettaa tämän jälkeen vertailussa käytettävän merkkijonon `password` muuttujaan: "password1":
+
+```c
+password = "password1";
+```
+
+Sitten `current_character` saa ensimmäisen salasanan merkin "p" ja `current_input` asetetaan käyttäjän syötteeseen.
+
+4. Nyt kun tiedämme suunnilleen kuinka ohjelma toimii, aletaan miettimään salasanan ratkaisemista. Tässä kohtaa kiinnitin huomion tähän:
+
+```c
+if (current_character + -1 != (int)*current_input)
+```
+
+Tässä näkyy kuinka ohjelma aloittaa vähentämällä salasanan nykyisestä merkistä yhden ( `current_character + -1` ) ja sitten vertaa sitä käyttäjän syötteen nykyiseen merkkiin ( `!=` ):n avulla, jolla tarkistetaan ovatko merkit erilaisia.
+
+**Esim:** Salasana on `password1?` joten aloitetaan p:stä: `p - 1 = o` eli ensimmäisen merkin täytyy olla se "o" jatketaan tämä sama homma koko `password1` merkkijonolle:
+
+Ensin kokeilin mennä jokaisessa merkissä taaksepän yhdellä kirjaimella ihan perus aakkosjärjestyksen mukaan, jolloin sain vastaukseksi tämän:
+```
+password1 = ozrrvnqc0
+```
+
+Salasana ei kuitenkaan toiminut: 
+
+<img width="257" height="70" alt="VirtualBoxVM_VUUWeWQyCG" src="https://github.com/user-attachments/assets/19ebad53-06ab-452a-8b39-ed167c31ad6e" />
+
+Tässä kohtaa olin jo käyttänyt aika monta tuntia koko raportin tekemisessa ja ideat olivat vähissä, joten ajattelin kysyä asiasta Claude Sonnet:ilta (Sonnet 5 Medium), ja sain selville että ohjelma käyttää merkkien ASCII arvoja eikä normaalia aakkosjärjestystä, eli siksi `a` (97) - 1 = 96, joka vastaa ``` ` ``` merkkiä.
+
+Joten, oikean salasanan pitäisi olla: ```o`rrvnqc0```
+
+<img width="264" height="62" alt="VirtualBoxVM_1EGdiLtteQ" src="https://github.com/user-attachments/assets/a27c37f9-11be-4e0e-b989-eaea9704b670" />
+
+> Kuten näkyykin, se oli oikein! Mahtavaa!
+
+## Lähteet
+- https://www.gnu.org/software/bash/manual/bash.html#Quoting
+- https://github.com/NoraCodes/crackmes
+- https://nora.codes/tutorial/an-intro-to-x86_64-reverse-engineering/
+- https://stackoverflow.com/questions/14841169/jnz-cmp-assembly-instructions?utm_source=chatgpt.com
+- https://www.cs.virginia.edu/~evans/cs216/guides/x86
+- https://coddy.tech/learn/assembly/fundamentals/what_is_mov
+- https://www.philadelphia.edu.jo/academics/qhamarsheh/uploads/Lecture%2018%20Conditional%20Jumps%20Instructions.pdf
+- https://cplusplus.com/reference/cstring/strcmp/
