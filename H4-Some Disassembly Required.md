@@ -199,7 +199,7 @@ cp 4passtr /home/blendi/H4/
 
 <img width="884" height="362" alt="VirtualBoxVM_WEKjFSqPy2" src="https://github.com/user-attachments/assets/7ec5134b-f6e1-475a-a083-163c3dcf9f15" />
 
-4. Kuten huomataankin kuvassa näkyvä `JNZ` hyppää "Sorry, no bonus" haaraan silloin kun `strcmp` vertailun tuloksena ei ole `0`. Tämä sai minut miettimään onkohan tällä olemassa vastakohtaa, ja löysin Googlen kautta Conditional Jumps Instructions materiaalin, josa `JZ` toimisi täydellisesti, päinvastaisena ehtona. Tämän myötä tajusin vaihtamalla `JNZ` -> `JZ` saamme aina oikean salasanan hylättyä ja kaikki muut väärät salasanat hyväksyttyä!
+4. Kuten huomataankin kuvassa näkyvä `JNZ` hyppää "Sorry, no bonus" haaraan silloin kun `strcmp` vertailun tuloksena ei ole `0`. Tämä sai minut miettimään onkohan tällä olemassa vastakohtaa, ja löysin Googlen kautta [Conditional Jumps Instructions](https://www.philadelphia.edu.jo/academics/qhamarsheh/uploads/Lecture%2018%20Conditional%20Jumps%20Instructions.pdf) materiaalin, josa `JZ` toimisi täydellisesti, päinvastaisena ehtona. Tämän myötä tajusin vaihtamalla `JNZ` -> `JZ` saamme aina oikean salasanan hylättyä ja kaikki muut väärät salasanat hyväksyttyä!
 > `JZ` = Jump If Zero
 
 5. Muutetaan `JNZ` -> `JZ` klikkaamalla `JNZ` käskyä hiiren oikealla klikkauksella ja valitaan `Patch Instruction`, sitten kirjoitetaan tilalle `JZ`:
@@ -277,6 +277,7 @@ strings crackme01.64 | grep -i password
 <br>
 <img width="360" height="66" alt="VirtualBoxVM_u8hphlFzPk" src="https://github.com/user-attachments/assets/a1ee2b08-22d6-4242-9e11-eab4152f0a76" />
 <br>
+
 > Salasana löytyi! `password1`
 
 2. Tarkistetaan vielä että tuo on oikea salasana:
