@@ -87,7 +87,7 @@ cgdb ./buggy_program
 
 <img width="313" height="140" alt="VirtualBoxVM_6yCYx9A4AV" src="https://github.com/user-attachments/assets/ec0ace96-03a1-445c-9022-c4da4bd21ce0" />
 
-> Aluksi työpöydällä pitäisi näkyä ns. "Welcome screen" jonka jälkeen `Enter` napin painamisen jälkeen, käyttöliittymmään tulee näkyviin ylhäälle lähdekoodi ja alhaalle GDB:n komentorivi.
+Aluksi työpöydällä pitäisi näkyä ns. "Welcome screen" jonka jälkeen `Enter` napin painamisen jälkeen, käyttöliittymmään tulee näkyviin ylhäälle lähdekoodi ja alhaalle GDB:n komentorivi.
 
 <img width="600" height="457" alt="VirtualBoxVM_n7rQRTgId6" src="https://github.com/user-attachments/assets/fb18c0d2-6cf8-46c3-8723-ad60fec5c864" />
 
@@ -213,7 +213,7 @@ printf("%c", (*message)+i);
 ```
 
 Tarkoittaakohan tämä sitten sitä että toi `message` aiheuttaa kaatumisen? 
-> Tässä kohtaa jäin hieman jumiin joten kysyin Claude Sonnet 4.6:lta apua miten pystyisin jatkamaan, ja se muistutti siitä että pystyn mennä frameja taaksepäin
+> Tässä kohtaa jäin hieman jumiin joten kysyin Claude Sonnet 5 (medium):lta apua miten pystyisin jatkamaan, ja se muistutti siitä että pystyn mennä frameja taaksepäin
 
 3. Selvitetään mistä `message` tulee kokeilemalla siirtyä yhden framen taakse `main` funktioon:
 
@@ -235,78 +235,198 @@ bad_message = NULL --> print_scrambled(bad_message) --> message = 0x0 --> (messa
 
 ## Lab2: GNU Debugger
 
+Jatketaan seuraavasta labistä: `passtr`.
 
+1. Aloitetaan siirtymällä oikeaan hakemistoon ja avaamalla binääri `cgdb`:llä :
 
+```bash
+cd Desktop/H5/lab2/passtr
+cgdb ./passtr2o
+```
 
+<img width="362" height="93" alt="VirtualBoxVM_x0mlDGxzZR" src="https://github.com/user-attachments/assets/444b0990-3324-41df-b914-1441f855704a" />
 
+<img width="600" height="454" alt="VirtualBoxVM_yReSq8o2Ps" src="https://github.com/user-attachments/assets/c7e5de9c-6b00-4add-b83a-63d00ddd9e49" />
 
+2. Kuten näkyykin, koska tässä tehtävässä ei ole lähdekoodia käytettävissä, aloitin tutkimalla mitä funktioita binäärissä on samalla `info` komennolla mitä käytin Lab1:ssä :
 
+```bash
+info functions
+```
 
+Tuloksissa tuli esille aika monta eri asiaa, kuitenkin itseäni kiinnosti eniten nämä seuraavat highlightatut funktiot:
 
+```
+main
+EaseEAs
+check_password
+mAsdf3a
+```
 
+<img width="343" height="286" alt="VirtualBoxVM_rObgk5QCgR" src="https://github.com/user-attachments/assets/ec48b943-3a27-4fd5-a119-de66938ff1c4" />
 
+3. Jatketaan tutkimalla jokaista funktiota vuorotellen, aloitin tässä `main` funktiolla:
 
+```
+disassemble main
+```
 
+<img width="589" height="309" alt="VirtualBoxVM_OVXLOZY1xu" src="https://github.com/user-attachments/assets/2d0c7a2d-9502-45e9-9fd3-6115dba34d27" />
 
+<img width="463" height="132" alt="VirtualBoxVM_KTzaeFz5cF" src="https://github.com/user-attachments/assets/2a83bfec-4a50-4711-be92-d730e17aec65" />
 
+4. Tästä voimme nähdä että ohjelma käyttää myöhemmin ainakin `mAsdf3a` ja `EaseEAs` funktiota. Kuitenkin tässä vaiheessa on aika vaikeaa sanoa että mitä ne tekee, sillä en tiedä asiasta tarkemmin, joten mennään tutkimaan niitä seuraavaksi:
+> `call` tarkoittaa siis "kutsuu x funktiota"!
 
+```
+disassemble EaseEAs
+```
 
+<img width="532" height="95" alt="VirtualBoxVM_phA8Oq7hq3" src="https://github.com/user-attachments/assets/be86143c-735d-4974-9ffc-c09cb6bdb84d" />
 
+Täältä löytyi jotain tuttua, XOR! Tajusin tässä kohtaa suoraan että `EaseEAs` funktio käy sille annetun merkkijonon läpi ja se XORaatan.
+> Tarkemmin XOR:rauksesta pystyt lukemaan H3 tehtäväni raportista: [H3-No Strings Attached](https://github.com/BlendiTH/Application-Hacking-and-Vulnerabilities/blob/main/H3-No%20Strings%20Attached.md#b-koodin-obfuskointi)
 
+5. Siirrytään nyt `check_password` funktion tutkimiseen:
 
+```bash
+disassemble check_password
+```
 
+<img width="429" height="68" alt="VirtualBoxVM_qLiOit5sZn" src="https://github.com/user-attachments/assets/d989f332-3565-40d1-a468-c3cb5c7bc4c6" />
 
+Tuloksena näkyy käytännössä se että funktio vain palauttaa arvon `0` eikä sisällä minkäänlaista varsinaista salasanan tarkistusta.
+> Tarkemmin tuosta `xor eax,eax`: [Why xor eax, eax?](https://xania.org/202512/01-xor-eax-eax)
 
+```assembly
+xor eax,eax
+ret
+```
 
+6. Tutkitaan vielä lopuksi tuota `mAsdf3a` funktiota:
 
+```
+disassemble mAsdf3a
+```
 
+<img width="497" height="118" alt="VirtualBoxVM_DhYOkRWL4R" src="https://github.com/user-attachments/assets/f29056ff-3c64-4894-8aba-e53f81a731e6" />
 
+Täältä tuli esille nämä tärkeimpinä komentoina:
 
+```assembly
+test al,0x1
+sub edx,0x7
+add edx,0x3
+```
 
+`test al,0x1` tarkistaa tässä, onko käsiteltävän merkin indeksi parillinen vai pariton, jonka jälkeen ohjelman laskuri alkaa arvosta 0 ja kasvaa jokaisella kierroksella. Tämän perusteella se jatkaa vähentämällä parittomista indekseista 7 (`sub edx,0x7`) ja parillisiin indekseihin se lisää 3 (`add edx,0x3`). Kaivamalla esiin vanha merkkijono jonka löysimme `anLTj4u8` ja laskemalla ASCII-arvojen mukaan voimme selvittää oikean salasanan:
 
+```
+a + 3 = d
+n - 7 = g
+L + 3 = O
+T - 7 = M
+j + 3 = m
+4 - 7 = -
+i + 3 = x
+8 - 7 = 1
+```
 
+Eli oikeaksi salasanaksi saamme: `dgOMm-x1`, testataan sitä vielä ohjelmassa ja varmistetaan että se toimii:
 
+<img width="550" height="93" alt="VirtualBoxVM_RAlbkDrjkX" src="https://github.com/user-attachments/assets/c5d35061-6bc1-4c25-9d11-2a5bcf41cb92" />
 
+> Mahtavaa saimme sen oikein, saimme myös lipun tulostettua: `FLAG{Lari-rsvRDx04WMBZpuwg4qfYwzdcvVa0oym}`
 
+## Lab3: Nora CrackMe
 
+Tässä tehtävässä tarkoituksena on selvittää ohjelman oikea salasana debuggerilla, joten aloitetaan suoraan lab:in kanssa siirtymällä oikeaan hakemistoon ja avaamalla binääri `cgdb`:llä:
+> Tässä tehtävässä voit katsoa kuinka koko ASCII arvo homma toimii vanhasta tehtävästäni, sillä se on jo siellä selitetty joten täällä siihen ei ole tarvetta: [H4-Some Disassembly Required](https://github.com/BlendiTH/Application-Hacking-and-Vulnerabilities/blob/main/H4-Some%20Disassembly%20Required.md#f-nora-crackme-02)
 
+```bash
+cd ..        # 2x kertaa!
+cd lab3
+cd crackmes
+```
 
+<img width="381" height="243" alt="VirtualBoxVM_UtZbUCB1iL" src="https://github.com/user-attachments/assets/76d9209b-eb05-4231-af0b-a699298d8daf" />
 
+1. Koska kyseessä on taas binääri, eikä ohjelman toimintaa pysty näkemään suoraan lähdekoodista jatketaan taas tutkimalla ohjelman funktiot:
 
+```
+info functions
+```
 
+<img width="336" height="247" alt="VirtualBoxVM_AfxYwzjIuw" src="https://github.com/user-attachments/assets/bc5c091b-87dc-4d27-a916-38859a12a8bd" />
 
+2. Tuloksissa näkyy tuttu `main` funktio, käydään tutkimassa sitä:
 
+```disassemble main```
 
+x
+Okei, disassemblyssä näkyy muun muassa seuraavat kohdat jotka näytti kiinnostavilta:
 
+```assembly
+mov  $0x70,%eax
+sub $0x1,%eax
+cmp %edx,%edx
+jne ...
+```
 
+`mov` siis asettaa `eax` rekisteriin arvon `0x70` joka vastaa ASCII taulukossa merkkiä `p` (ASCII taulukon käytöstä päättelin viime tehtävän perusteella, tämä oli odotettua). Seuraavaksi `sub` vähentää siitä yhdenv joten se `p` muuttuu `o`:ksi. Kaiken tämän jälkeen siirrymme vielä `cmp`:hen joka vertaa tätä arvoa käyttäjän antamaan merkkiin ja `jne` (**jump if not equal**) siirtyy väärän salasanan kohtaan, vain jos ne eivät täsmää.
 
+<img width="470" height="205" alt="VirtualBoxVM_tga1CmyJR6" src="https://github.com/user-attachments/assets/edfe41a1-3d1c-47a1-9135-8162370e4cd0" />
 
+3. No, selvitetään sitten tämän tiedon perusteella mistä tämä verrattava merkkijono tulee. Tässä kohtaa tarvitsin tekoälyltä (Claude Sonnet 5 (Medium))taas apua kun olin hieman jumissa ja en ymmärtänyt täysin 100% mitä piti seuraavaksi tehdä. Se sitten kertoi Disassemblyssä näkyvästä `lea 0xed0(%rip),%rdi` kohdasta, jonka rekisteriin (`rdi`) ladataan muistiosoite, jota ohjelma sitten käyttää merkkijonon käsittelyyn. 
 
+Jatkoin sitten Googlaamalla miten oikein pystyn saamaan tuon osoitteen sisältämän teksin ja päädyin [GDB Memory](https://sourceware.org/gdb/current/onlinedocs/gdb.html/Memory.html) sivustoon ja sieltä löytyi `x` komento jolla pystyn tutkimaan muistissa olevaa dataa, kokeilin kuitenkin ensin vain pelkkää komentoa mutta se antoi `No registers` virheen:
 
+```
+x/s $rdi 
+```
+> Tarkemmin: `x` = tutkii muistia, `/s` = näyttää sisällön merkkijonona, ja `$rdi` = käyttää `rdi` rekisterin sisältämää muistiosoitetta
 
+<img width="146" height="39" alt="VirtualBoxVM_aq1o4zQwz4" src="https://github.com/user-attachments/assets/06a4597e-723c-4154-bea6-e0b110f23e0f" />
 
+Tämä virhe tuli varmasti koska ohjelma oli ehtinyt loppua, joten käynnistin ohjelman uudelleen mutta tällä kertaa breakpointilla `main` funktioon ja etenin siitä sitten `nexti` komennolla jota jatkoin, kunnes vastaan tuli tämä kohta:
+> `nexti` ei `next` koska käytössä on vain assembly, joten `nexti` menee aina seuraavaan assembly käskyyn eli instructioniin 
 
+```assembly
+lea 0xed0(%rip),%rdi
+```
 
+<img width="600" height="644" alt="VirtualBoxVM_h6NLYNVFMU" src="https://github.com/user-attachments/assets/78619bc7-ed56-40d5-92df-d122da2fae76" />
 
+<img width="600" height="370" alt="VirtualBoxVM_src3fLCYX5" src="https://github.com/user-attachments/assets/ea3dfbf3-6e36-4b74-b2bd-b8adfd3c72e3" />
 
+Tässä kohtaa `rdi` rekisteriin oli ladattuna halutun merkkijonon muistiosoite jonka jälkeen kokeilin uudelleen samaa komentoa, josta sain tulokseksi `password1`, eli ohjelman käyttämä verrattava merkkijono on tuo!
 
+<img width="233" height="39" alt="VirtualBoxVM_8wAgBycyf1" src="https://github.com/user-attachments/assets/15b0b57f-c9ec-40fb-a2f1-0f8832984afa" />
 
+4. Seuraavaksi selvitetään oikea salasana, nyt kun tiedämme että verrattava merkkijono on `password1` voimme vihdoin käyttää mitä löysimme aikaisemmin:
 
+```assembly
+sub $0x1,%eax
+cmp %edx,%edx
+```
 
+Joka siis lyhyesti tarkoitta sitä että jokaisesta verrattavan merkkijonon merkistä vähennetään yksi ennenkuin sitä verrataan käyttäjän syötteeseen ja tutkitaan onko se oikein. Muistetaan käyttää ASCII-arvoja:
 
+Salasana on password1 joten aloitetaan p:stä: p - 1 = o eli ensimmäisen merkin täytyy olla se "o" jatketaan tämä sama homma koko password1 merkkijonolle, joten salasanaksi saadaan: ```o`rrvnqc0```
 
+5. Testataan vielä lopuksi salasana:
 
+```bash
+./crackme02.64 'o`rrvnqc0'
+```
 
+<img width="386" height="72" alt="VirtualBoxVM_W7mkvNptY3" src="https://github.com/user-attachments/assets/7a3078e0-fcfb-424a-812c-3b10b17d95fc" />
 
-
-
-
-
-
-
+Se oli oikein! Saimme sen tehtyä! :D
 
 ## Lähteet
 - https://hackingcpp.com/cpp/tools/gdb_intro
 - https://sourceware.org/gdb/current/onlinedocs/gdb.html/Backtrace.html
 - https://www.sourceware.org/gdb/current/onlinedocs/gdb.html/Frame-Info.html
-- 
+- [H3-No Strings Attached](https://github.com/BlendiTH/Application-Hacking-and-Vulnerabilities/blob/main/H3-No%20Strings%20Attached.md#b-koodin-obfuskointi)
+- https://xania.org/202512/01-xor-eax-eax
