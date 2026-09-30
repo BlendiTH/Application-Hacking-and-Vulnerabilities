@@ -1,4 +1,4 @@
-<img width="543" height="169" alt="VirtualBoxVM_2AdGC17tS5" src="https://github.com/user-attachments/assets/10afd6df-84ae-4a4a-9a84-01a371417473" />## H6 Onkohan tämä turvallinen käyttää? | Blendi Thaqi 29/09/2026
+## H6 Onkohan tämä turvallinen käyttää? | Blendi Thaqi 29/09/2026
 
 ## Ympäristö
 
@@ -170,7 +170,7 @@ strings _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root/bin/main > main_st
 
 6. Mennään kuitenkin seuraavaan asiaan, root-salasanan tutkimiseen. Katsotaan löytyykö salasanaa ghidrasta
 
-
+## ** Jatkan tästä vielä eteenpäin kun en vieläkään ole päässyt loppuun.
 
 
 
