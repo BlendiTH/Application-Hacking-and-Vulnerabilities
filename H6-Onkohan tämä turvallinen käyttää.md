@@ -19,7 +19,7 @@
 ## TP-Link Tapo C200 Firmware analyysi
 
 1. Aloitetaan ihan ensin työkalujen tarkistamisella, löytyvätkö tarpeelliset työkalut Kalista, jos ei, ladataan ne:
-> Tarkistin myös `àwscli`:n sillä lataamme sillä tarvittavan firmwaren myöhemmin
+> Tarkistin myös `awscli`:n sillä lataamme sillä tarvittavan firmwaren myöhemmin
 
 ```
 sudo apt update
@@ -39,12 +39,12 @@ git --version
 Jatketaan lataamalla `awscli` koska se puuttui:
 
 ```
-aws s3 cp s3://download.tplinkcloud.com/firmware/Tapo_C200v3_en_1.4.2_Build_250313_Rel.40499n_up_boot-signed_1747894968535.bin Tapo_C200v4_en_1.4.2.bin --no-sign-request
+sudo apt install awscli
 ```
 
 <img width="492" height="157" alt="VirtualBoxVM_6x1bJDUEFa" src="https://github.com/user-attachments/assets/4b409299-2b02-4794-8b11-80069663d788" />
 
-2. Jatketaan firmwaren lataamiseen, ladataan samalla `tp-link-decrypt` työkalu:
+2. Jatketaan Tapo C200 firmwaren lataamiseen ja samalla ladataan `tp-link-decrypt` työkalu GitHubista:
 
 ```bash
 aws s3 cp s3://download.tplinkcloud.com/firmware/Tapo_C200v3_en_1.4.2_Build_250313_Rel.40499n_up_boot-signed_1747894968535.bin Tapo_C200v4_en_1.4.2.bin --no-sign-request
@@ -72,7 +72,7 @@ make
 
 <img width="600" height="131" alt="VirtualBoxVM_vUlUgce2oz" src="https://github.com/user-attachments/assets/00bb834a-682d-43d9-aff9-6dd2b7c6336c" />
 
-Okei, kuten näkyykin `make` komento epäonnistui, koska OpenSSL puuttui. Asennetaan sille tarvittava paketti ja yritetään uudelleen!
+Okei, kuten näkyykin `make` komento epäonnistui, koska OpenSSL tarvitsemia kehitystiedostoja puuttui. Asennetaan sille tarvittava paketti ja yritetään uudelleen:
 
 ```bash
 sudo apt install libssl-dev
@@ -83,6 +83,8 @@ sudo apt install libssl-dev
 Kokeillaan `make` komentoa uudelleen:
 
 <img width="600" height="248" alt="VirtualBoxVM_3TAWGNtBsU" src="https://github.com/user-attachments/assets/752e9899-7b7f-4a1e-9f3c-618e894932e5" />
+
+> Mahtavaa! Ohjelma saatiin rakennettua.
 
 3. Nyt kun kaikki on ladattuna voimme jatkaa ajamalla `tp-link-decrypt` ohjelman laiteohjelmistotiedostolle:
 
@@ -128,7 +130,7 @@ binwalk -e Tapo_C200v4_en_1.4.2.bin.dec
 
 <img width="600" height="92" alt="VirtualBoxVM_X7xMOpAWZw" src="https://github.com/user-attachments/assets/9d9fdce2-63c6-456a-b13a-b1347b91a7b1" />
 
-5. Komennon suorittamisen jälkeen voimme nähdä että Binwalk löysi taas SquashFS tiedojärjestelmän kohdasta `0x3E0200` ja loi siitä puretun `squashfs-root` hakemiston, käydään tutkimassa sitä ja firmwaressa olleita tiedostoja sekä kansioita tarkemmin:
+5. Komennon suorittamisen jälkeen voimme nähdä että Binwalk löysi SquashFS tiedojärjestelmän ja loi `squashfs-root` hakemiston. Tarkistetaan vielä että tietojärjestelmä on purettu onnistuneesti:
 > `-l` näyttää tarkemmat tiedot, `-a` näyttää myös piilotetut tiedostot, `-h` näyttää tiedostokoot hieman helpommin.
 
 ```bash
@@ -137,7 +139,7 @@ ls -lah _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root
 
 <img width="543" height="169" alt="VirtualBoxVM_2AdGC17tS5" src="https://github.com/user-attachments/assets/fcdb4ac9-c8f2-4fe0-b72c-9b9d8012b053" />
 
-Katsotaan löytyykö minkälaisia ohjelmia firmwarsta, erityisesti haluaisin kuitenkin löytää suoritettavia tiedostoja, jotta pystymme tutkimaan niitä myöhemmin (esim. `strings` komennolla ja/tai Ghidralla) Tarkoituksena löytää mahdollisia kohteita tarkempaa tietoturva analyysiä varten:
+Seuraavaksi, haluaisin selvittää millaisia ohjelmia rootfs sisältää ja löytyykö sieltä suoritettavia tiedostoja, joita pystyisimme tutkimaan tarkemmin:
 
 ```bash
 find _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root -type f -executable
@@ -145,9 +147,7 @@ find _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root -type f -executable
 
 <img width="600" height="112" alt="VirtualBoxVM_6igTOntbMt" src="https://github.com/user-attachments/assets/244be0e8-127f-4089-823b-7927d14118a0" />
 
-Komento löysi kyllä aika monia suoritettavaksi merkittyjä tiedostoja. Tärkeimpinä kuitenkin `bin/main`, `bin/gdbserver`, ja `bin/impdgb`, jotka voisivat olla kiinnostavia kohteita. Erityisesti `main` sillä se voi ja varmaankin liittyykin laitteen pääohhjelmistoon, `gdbserver` ja `impdbg` taas viitaavat debuggaamiseen liittyviin työkaluihin, en voi kuitenkaan vielä varmistää näiden käyttötarkoitusta.
-
-Jatketaan seuraavaksi tarkistamalla, minkä tyyppisiä löydetyt tiedostot ovat aj mille arkkitehtuurille ne ovat käännettyjä. Näin pystymme varmistamaan, pystyykö mitään tiedostoja suorittaa, komento myös näyttää meille tiedoston tyypin ja mahdollisesti sen arkkitehtuurin:
+Komento löysi useita suoritettavaksi merkittyjä tiedostoja. Näistä kuitenkin `main`, `gdbserver`, ja `impdgb` herättivät kiinnostukseni, jatketaan tarkistamalla seuraavaksi `main` tiedoston tyypin:
 
 ```bash
 file _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root/bin/main
@@ -155,12 +155,13 @@ file _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root/bin/main
 
 <img width="600" height="82" alt="VirtualBoxVM_dCE91QMCEe" src="https://github.com/user-attachments/assets/e1810044-ce14-4604-9220-cd9e9c943830" />
 
-Komento vahvisti, että `main` on 32 bittinen MIPS ohjelma, josta on poistettu symbolitietoja, no jatketaan kuitenkin tutkimalla sen sisältä löytyviä merkkijonoja:
+Komento vahvisti, että `main` on 32 bittinen MIPS ohjelma, josta on poistettu symbolitietoja, no jatketaan kuitenkin tutkimalla sen sisältä löytyviä merkkijonoja `strings` komennolla:
 
 ```bash
 strings _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root/bin/main
 ```
-> Tässä kohtaa komento alkoi tulostamaan aivan liikaa niin ajattelin jatkaa tätä Ghidralla myöhemmin, joten tallensin sen tulostuksen tiedostoon.
+
+Tuloksia tuli kuitenkin niin paljon, että jos alkaisin itse niitä tutkimaan käsin, se olisi todella hankalaa ja aikaa vievää, joten tallensin tulosteen tästä syystä `main_strings.txt` tiedostoon: 
 
 ```bash
 strings _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root/bin/main > main_strings.txt
@@ -168,9 +169,60 @@ strings _Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root/bin/main > main_st
 
 <img width="600" height="342" alt="VirtualBoxVM_si8Eu9kKvY" src="https://github.com/user-attachments/assets/94819067-6894-41f2-924f-0c2057107e30" />
 
-6. Mennään kuitenkin seuraavaan asiaan, root-salasanan tutkimiseen. Katsotaan löytyykö salasanaa ghidrasta
+6. Koska emme löytäneet `strings` komennon tuloksista mitään selkeää (ainakaan helposti), voimme jatkaa seuraavaan analyysikohteeseen. Tässä kohtaa tarvitsin apua tekoälyltä, koska en ollut vielä varma, miten tuota MIPS binäärin tutkimista kannattaisi jatkaa. Päädyin sitten käyttämään ghidraa, jonka avulla voimme tarkastella ohjelman assemblyä:
 
-## ** Jatkan tästä vielä eteenpäin kun en vieläkään ole päässyt loppuun.
+Avataan `_Tapo_C200v4_en_1.4.2.bin.dec.extracted/squashfs-root/bin/main` tiedosto Ghidrassa ja siirrytään tutkimaan siitä löytyviä merkkijonoja tarkemmin:
+> Ghidrasta on tarkemmat ohjeet toisessa tehtävässäni: [H4-Some Disassembly Required](https://github.com/BlendiTH/Application-Hacking-and-Vulnerabilities/blob/main/H4-Some%20Disassembly%20Required.md#b-rever-c-packd)
+
+<img width="334" height="456" alt="VirtualBoxVM_319g5SO28X" src="https://github.com/user-attachments/assets/14b67660-2780-444e-b79a-a2fe0c8d7e6a" />
+
+Koska ohjelmasta löytyy todella paljon merkkijonoja, niitä ei ole järkevää käydä läpi yksitellen, joten etsitään Ghidrasta analyysin kannalta kiinnostavia sanoja, kuten `password`, `admin`, `root`, jne:
+
+<img width="600" height="305" alt="VirtualBoxVM_VNZW3gPwYK" src="https://github.com/user-attachments/assets/404c4d2d-00f8-4beb-b2f3-0c6c788fb681" />
+
+Ghidrasta löytyi useta salasanaan liittyviä merkkijonoja, kiinnostavimpina olivat kuitenkin seuraavat: `Password = %s`, `Encoding Password: %s`, ja `[HTTPD]Hash(password)`. Silmääni kuitenkin pisti tuo `Password = %s`, joten tutkitaan sitä tarkemmin ja missä sitä käytetään ohjelmassa:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
